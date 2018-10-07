@@ -141,7 +141,12 @@ export class UserBoxComponent extends Component<IUserBoxComponentProps, IUserBox
       /**
        * Whether current user changed the selected circles for referer user
        */
-      disabledDoneCircles: true
+      disabledDoneCircles: true,
+       /**
+        * Whether user created circle which already existed 
+        * 
+        */
+      disableAlert: true,
     }
     // Binding functions to `this`
     this.handleChangeName = this.handleChangeName.bind(this)
@@ -212,14 +217,24 @@ export class UserBoxComponent extends Component<IUserBoxComponentProps, IUserBox
    */
   onCreateCircle = () => {
     const { circleName } = this.state
-    if (circleName && circleName.trim() !== '') {
+    const {circles} = this.props
+    let circleNameList: any = []
+    circles!.forEach( (circleElement) => {
+      circleNameList.push(circleElement!.get('name'))
+    })
+    if (circleName && circleName.trim() !== ''
+          && circleNameList.indexOf(circleName) === -1) {
       this.props.createCircle!(this.state.circleName)
       this.setState({
         circleName: '',
         disabledCreateCircle: true
       })
+    } else {
+     this.setState({
+       disableAlert: false,
+     })
     }
-  }
+}
 
   /**
    * Handle change group name input to the state
@@ -248,7 +263,12 @@ export class UserBoxComponent extends Component<IUserBoxComponentProps, IUserBox
       disabledDoneCircles: !this.selectedCircleChange(newSelectedCircles)
     })
   }
-
+  /**
+   * Close alert
+   */
+  handleCloseAlert = () => {
+    this.setState({ disableAlert: true })
+  }
   /**
    * Create a circle list of user which belong to
    */
@@ -405,6 +425,24 @@ export class UserBoxComponent extends Component<IUserBoxComponentProps, IUserBox
             >
               {translate!('userBox.doneButton')}
         </Button>
+          </DialogActions>
+        </Dialog>
+        
+        <Dialog
+          open={!this.state.disableAlert}
+          onClose={this.handleCloseAlert}
+          aria-labelledby='alert-dialog-title'
+          aria-describedby='alert-dialog-description'
+        >
+          <DialogContent>
+            <DialogContentText id='alert-dialog-description'>
+              Caution: This circle name is existed. Please check it again
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleCloseAlert} color='primary' autoFocus>
+              Agree
+            </Button>
           </DialogActions>
         </Dialog>
       </Paper>

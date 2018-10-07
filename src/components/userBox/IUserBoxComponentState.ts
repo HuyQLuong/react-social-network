@@ -39,4 +39,9 @@ export interface IUserBoxComponentState {
    */
   disabledDoneCircles: boolean
 
+  /**
+   * Whether user created circle which already existed 
+   * 
+   */
+  disableAlert: boolean
 }
